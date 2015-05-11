@@ -14,13 +14,8 @@ $ npm install tilestrata-disk --save
 ```js
 var disk = require('tilestrata-disk');
 
-server.registerLayer(function(layer) {
-    layer.setName('mylayer');
-    layer.registerRoute('tile.png', function(handler) {
-        layer.registerCache(disk({dir: './tiles/mylayer'}));
-        layer.registerProvider(...);
-    });
-});
+server.layer('mylayer').route('tile.png')
+    .use(disk({dir: './tiles/mylayer'}));
 ```
 
 ## Contributing
