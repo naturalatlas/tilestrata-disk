@@ -1,6 +1,10 @@
 var fs = require('fs-extra');
 var mime = require('mime');
 
+mime.define({
+	'application/x-protobuf': ['pbf','vtile']
+});
+
 function FileSystemCache(options) {
 	this.options = options || {};
 };
@@ -29,8 +33,12 @@ FileSystemCache.prototype.get = function(server, req, callback) {
 	var file = this._file(req);
 	fs.readFile(file, function(err, buffer) {
 		if (err) return callback(err);
+		var mimeType = mime.lookup(file);
+		if (mimeType.substring(0,5) === 'text/' || mimeType === 'application/json') {
+			mimeType += '; charset=UTF-8';
+		}
 		callback(null, buffer, {
-			'Content-Type': mime.lookup(file)
+			'Content-Type': mimeType
 		});
 	});
 };

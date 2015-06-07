@@ -47,7 +47,44 @@ describe('Cache Implementation "disk"', function() {
 					assert.instanceOf(buffer, Buffer);
 					assert.equal(buffer.toString('utf8'), 'Hello World');
 					assert.deepEqual(headers, {
-						'Content-Type': 'text/plain'
+						'Content-Type': 'text/plain; charset=UTF-8'
+					});
+					done();
+				});
+			});
+		});
+		it('should have charset declared for JSON', function(done) {
+			// https://github.com/naturalatlas/tilestrata-mapnik/issues/3
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/filesystem-test';
+			var cache = filesystem({dir: dir});
+			cache.init(server, function(err) {
+				assert.isFalse(!!err, err);
+				cache.get(server, req, function(err, buffer, headers) {
+					assert.isFalse(!!err, err);
+					assert.instanceOf(buffer, Buffer);
+					assert.equal(buffer.toString('utf8'), '{}\n');
+					assert.deepEqual(headers, {
+						'Content-Type': 'application/json; charset=UTF-8'
+					});
+					done();
+				});
+			});
+		});
+		it('should have "application/x-protobuf" Content-Type for vector tiles', function(done) {
+			// https://github.com/naturalatlas/tilestrata-mapnik/issues/3
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.pbf');
+			var dir = __dirname + '/fixtures/filesystem-test';
+			var cache = filesystem({dir: dir});
+			cache.init(server, function(err) {
+				assert.isFalse(!!err, err);
+				cache.get(server, req, function(err, buffer, headers) {
+					assert.isFalse(!!err, err);
+					assert.instanceOf(buffer, Buffer);
+					assert.deepEqual(headers, {
+						'Content-Type': 'application/x-protobuf'
 					});
 					done();
 				});
