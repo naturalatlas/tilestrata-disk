@@ -1,6 +1,6 @@
 var TileServer = require('tilestrata').TileServer;
 var TileRequest = require('tilestrata').TileRequest;
-var filesystem = require('../index.js');
+var disk = require('../index.js');
 var assert = require('chai').assert;
 var path = require('path');
 var fs = require('fs');
@@ -10,7 +10,7 @@ describe('Cache Implementation "disk"', function() {
 		it('should create parent folder', function(done) {
 			var server = new TileServer();
 			var dir = path.resolve(__dirname, './.tmp/fs' + String(Math.random()).substring(2)) + '/folder';
-			var cache = filesystem({dir: dir});
+			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
 				assert.isFalse(!!err);
 				assert.isTrue(fs.existsSync(dir));
@@ -23,7 +23,7 @@ describe('Cache Implementation "disk"', function() {
 			var server = new TileServer();
 			var req = TileRequest.parse('/layer/3/1/2/tile@2x.png');
 			var dir = path.resolve(__dirname, './.tmp/fs' + String(Math.random()).substring(2)) + '/folder';
-			var cache = filesystem({dir: dir});
+			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
 				assert.isFalse(!!err);
 				cache.set(server, req, new Buffer('contents', 'utf8'), {}, function(err) {
@@ -38,8 +38,8 @@ describe('Cache Implementation "disk"', function() {
 		it('should retrieve file', function(done) {
 			var server = new TileServer();
 			var req = TileRequest.parse('/layer/3/2/1/tile.txt');
-			var dir = __dirname + '/fixtures/filesystem-test';
-			var cache = filesystem({dir: dir});
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
 				assert.isFalse(!!err, err);
 				cache.get(server, req, function(err, buffer, headers) {
@@ -57,8 +57,8 @@ describe('Cache Implementation "disk"', function() {
 			// https://github.com/naturalatlas/tilestrata-mapnik/issues/3
 			var server = new TileServer();
 			var req = TileRequest.parse('/layer/3/2/1/tile.json');
-			var dir = __dirname + '/fixtures/filesystem-test';
-			var cache = filesystem({dir: dir});
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
 				assert.isFalse(!!err, err);
 				cache.get(server, req, function(err, buffer, headers) {
@@ -76,8 +76,8 @@ describe('Cache Implementation "disk"', function() {
 			// https://github.com/naturalatlas/tilestrata-mapnik/issues/3
 			var server = new TileServer();
 			var req = TileRequest.parse('/layer/3/2/1/tile.pbf');
-			var dir = __dirname + '/fixtures/filesystem-test';
-			var cache = filesystem({dir: dir});
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
 				assert.isFalse(!!err, err);
 				cache.get(server, req, function(err, buffer, headers) {

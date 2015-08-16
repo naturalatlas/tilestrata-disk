@@ -3,7 +3,7 @@
 [![Build Status](http://img.shields.io/travis/naturalatlas/tilestrata-disk/master.svg?style=flat)](https://travis-ci.org/naturalatlas/tilestrata-disk)
 [![Coverage Status](http://img.shields.io/coveralls/naturalatlas/tilestrata-disk/master.svg?style=flat)](https://coveralls.io/r/naturalatlas/tilestrata-disk)
 
-A [TileStrata](https://github.com/naturalatlas/tilestrata) plugin for storing / retrieving tiles from disk. When using this plugin, make **sure** to use different directories for each layer (e.g. "tiles/layer_a", "tiles/layer_b").
+A [TileStrata](https://github.com/naturalatlas/tilestrata) plugin for storing / retrieving tiles from disk. It can either act as a cache or as a provider. When using it for caching, make **sure** to use different directories for each layer (e.g. "tiles/layer_a", "tiles/layer_b").
 
 ```sh
 $ npm install tilestrata-disk --save
@@ -14,8 +14,14 @@ $ npm install tilestrata-disk --save
 ```js
 var disk = require('tilestrata-disk');
 
+// cache: cache tiles to disk
 server.layer('mylayer').route('tile.png')
-    .use(disk({dir: './tiles/mylayer'}));
+    .use(/* some provider */)
+    .use(disk.cache({dir: './tiles/mylayer'}));
+
+// provider: serve pre-existing / pre-sliced tiles off disk
+server.layer('mylayer').route('tile.png')
+    .use(disk.provider('/path/to/dir/{z}/{x}/{y}/file.png'));
 ```
 
 ## Contributing

@@ -15,6 +15,7 @@
   "keywords": [
     "tilestrata",
     "tilestrata-plugin",
+    "tilestrata-provider",
     "tilestrata-cache"
   ],
   "bugs": {
