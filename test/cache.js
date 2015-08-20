@@ -41,14 +41,130 @@ describe('Cache Implementation "disk"', function() {
 			var dir = __dirname + '/fixtures/sample';
 			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
-				assert.isFalse(!!err, err);
+				if (err) throw err;
 				cache.get(server, req, function(err, buffer, headers) {
-					assert.isFalse(!!err, err);
+					if (err) throw err;
 					assert.instanceOf(buffer, Buffer);
 					assert.equal(buffer.toString('utf8'), 'Hello World');
 					assert.deepEqual(headers, {
 						'Content-Type': 'text/plain; charset=UTF-8'
 					});
+					done();
+				});
+			});
+		});
+		it('should not return file if older than maxage', function(done) {
+			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
+			var ftime = new Date(Date.now()-3600);
+			fs.utimesSync(file, ftime, ftime);
+
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, maxage: 1800});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers) {
+					if (err) throw err;
+					assert.isNull(buffer);
+					done();
+				});
+			});
+		});
+		it('should return file if permitted by maxage', function(done) {
+			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
+			var ftime = new Date(Date.now()-3600);
+			fs.utimesSync(file, ftime, ftime);
+
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, maxage: 6000});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers) {
+					if (err) throw err;
+					assert.instanceOf(buffer, Buffer);
+					done();
+				});
+			});
+		});
+		it('should allow maxage to be a function (truthy result)', function(done) {
+			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
+			var ftime = new Date(Date.now()-3600);
+			fs.utimesSync(file, ftime, ftime);
+			var fcalled = false;
+
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, maxage: function(server, tile) {
+				fcalled = true;
+				assert.instanceOf(server, TileServer);
+				assert.instanceOf(tile, TileRequest);
+				return 6000;
+			}});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers) {
+					if (err) throw err;
+					assert.instanceOf(buffer, Buffer);
+					assert.isTrue(fcalled, 'function called');
+					done();
+				});
+			});
+		});
+		it('should skip get() if maxage = 0', function(done) {
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, maxage: 0});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers) {
+					if (err) throw err;
+					assert.isNull(buffer);
+					done();
+				});
+			});
+		});
+		it('should skip set() if maxage = 0', function(done) {
+			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
+
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, maxage: 0});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.set(server, req, new Buffer('TEST'), {}, function(err) {
+					if (err) throw err;
+					assert.equal(fs.readFileSync(file, 'utf8').trim(), '{}');
+					done();
+				});
+			});
+		});
+		it('should allow maxage to be a function (falsy result)', function(done) {
+			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
+			var ftime = new Date(Date.now()-3600);
+			fs.utimesSync(file, ftime, ftime);
+			var fcalled = false;
+
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, maxage: function(server, tile) {
+				fcalled = true;
+				assert.instanceOf(server, TileServer);
+				assert.instanceOf(tile, TileRequest);
+				return 1800;
+			}});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers) {
+					if (err) throw err;
+					assert.isNull(buffer);
+					assert.isTrue(fcalled, 'function called');
 					done();
 				});
 			});
