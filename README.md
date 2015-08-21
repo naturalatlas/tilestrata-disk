@@ -1,9 +1,9 @@
 # tilestrata-disk
 [![NPM version](http://img.shields.io/npm/v/tilestrata-disk.svg?style=flat)](https://www.npmjs.org/package/tilestrata-disk)
 [![Build Status](http://img.shields.io/travis/naturalatlas/tilestrata-disk/master.svg?style=flat)](https://travis-ci.org/naturalatlas/tilestrata-disk)
-[![Coverage Status](http://img.shields.io/coveralls/naturalatlas/tilestrata-disk/master.svg?style=flat)](https://coveralls.io/r/naturalatlas/tilestrata-disk)
+[![Coverage Status](http://img.shields.io/codecov/c/github/naturalatlas/tilestrata-disk/master.svg?style=flat)](https://codecov.io/github/naturalatlas/tilestrata-disk)
 
-A [TileStrata](https://github.com/naturalatlas/tilestrata) plugin for storing / retrieving tiles from disk. It can either act as a cache or as a provider. When using it for caching, make **sure** to use different directories for each layer (e.g. "tiles/layer_a", "tiles/layer_b"). If given a `maxage`, it will check the modification time of a tile and return null if it's too old. If for some reason, the `maxage` is zero, caching will be disabled.
+A [TileStrata](https://github.com/naturalatlas/tilestrata) plugin for storing / retrieving tiles from disk. It can either act as a cache or as a provider. When using it for caching, make **sure** to use different directories for each layer (e.g. "tiles/layer_a", "tiles/layer_b"). If given a `maxage`, it will check the modification time of a tile and return null if it's too old. If `maxage=0`, caching behavior will be completely disabled.
 
 ```sh
 $ npm install tilestrata-disk --save
