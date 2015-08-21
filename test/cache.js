@@ -55,7 +55,7 @@ describe('Cache Implementation "disk"', function() {
 		});
 		it('should not return file if older than maxage', function(done) {
 			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
-			var ftime = new Date(Date.now()-3600);
+			var ftime = new Date(Date.now()-3600*1000);
 			fs.utimesSync(file, ftime, ftime);
 
 			var server = new TileServer();
@@ -73,7 +73,7 @@ describe('Cache Implementation "disk"', function() {
 		});
 		it('should return file if permitted by maxage', function(done) {
 			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
-			var ftime = new Date(Date.now()-3600);
+			var ftime = new Date(Date.now()-3600*1000);
 			fs.utimesSync(file, ftime, ftime);
 
 			var server = new TileServer();
@@ -91,7 +91,7 @@ describe('Cache Implementation "disk"', function() {
 		});
 		it('should allow maxage to be a function (truthy result)', function(done) {
 			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
-			var ftime = new Date(Date.now()-3600);
+			var ftime = new Date(Date.now()-3600*1000);
 			fs.utimesSync(file, ftime, ftime);
 			var fcalled = false;
 
@@ -146,7 +146,7 @@ describe('Cache Implementation "disk"', function() {
 		});
 		it('should allow maxage to be a function (falsy result)', function(done) {
 			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
-			var ftime = new Date(Date.now()-3600);
+			var ftime = new Date(Date.now()-3600*1000);
 			fs.utimesSync(file, ftime, ftime);
 			var fcalled = false;
 
