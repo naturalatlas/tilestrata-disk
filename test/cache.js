@@ -6,6 +6,11 @@ var path = require('path');
 var fs = require('fs');
 
 describe('Cache Implementation "disk"', function() {
+	it('should throw if "refreshage" given without "maxage"', function() {
+		assert.throws(function() {
+			disk.cache({dir: __dirname, refreshage: 1});
+		}, '"refreshage" param must be used in conjunction with "maxage"');
+	});
 	describe('init', function() {
 		it('should create parent folder', function(done) {
 			var server = new TileServer();
@@ -176,9 +181,9 @@ describe('Cache Implementation "disk"', function() {
 			var dir = __dirname + '/fixtures/sample';
 			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
-				assert.isFalse(!!err, err);
+				if (err) throw err;
 				cache.get(server, req, function(err, buffer, headers) {
-					assert.isFalse(!!err, err);
+					if (err) throw err;
 					assert.instanceOf(buffer, Buffer);
 					assert.equal(buffer.toString('utf8'), '{}\n');
 					assert.deepEqual(headers, {
@@ -195,12 +200,35 @@ describe('Cache Implementation "disk"', function() {
 			var dir = __dirname + '/fixtures/sample';
 			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
-				assert.isFalse(!!err, err);
+				if (err) throw err;
 				cache.get(server, req, function(err, buffer, headers) {
-					assert.isFalse(!!err, err);
+					if (err) throw err;
 					assert.instanceOf(buffer, Buffer);
 					assert.deepEqual(headers, {
 						'Content-Type': 'application/x-protobuf'
+					});
+					done();
+				});
+			});
+		});
+		it('should return true to "refresh" param on callback if age > refreshage', function(done) {
+			var file = __dirname + '/fixtures/sample/3/2/1/tile.json';
+			var ftime = new Date(Date.now()-3600*1000);
+			fs.utimesSync(file, ftime, ftime);
+
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.json');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, refreshage: 1800, maxage: 3600*5});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers, refresh) {
+					if (err) throw err;
+					assert.isTrue(refresh, '"refresh" arg');
+					assert.instanceOf(buffer, Buffer);
+					assert.equal(buffer.toString('utf8'), '{}\n');
+					assert.deepEqual(headers, {
+						'Content-Type': 'application/json; charset=UTF-8'
 					});
 					done();
 				});

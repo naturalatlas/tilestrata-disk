@@ -28,18 +28,32 @@ server.layer('mylayer').route('tile.png')
 server.layer('mylayer').route('tile.png')
     .use(/* some provider */)
     .use(disk.cache({
-    	dir: './tiles/mylayer',
-    	maxage: function(server, req) {
-    		if (req.z > 15) return 0; // don't cache
-    		if (req.z > 13) return 3600;
-    		return 3600*24;
-    	}
+        dir: './tiles/mylayer',
+        maxage: function(server, req) {
+            if (req.z > 15) return 0; // don't cache
+            if (req.z > 13) return 3600;
+            return 3600*24;
+        }
     }));
 
 // provider: serve pre-existing / pre-sliced tiles off disk
 server.layer('mylayer').route('tile.png')
     .use(disk.provider('/path/to/dir/{z}/{x}/{y}/file.png'));
 ```
+
+### Advanced Behavior
+
+If using TileStrata [0.6.0](https://github.com/naturalatlas/tilestrata/releases/tag/v1.6.0) and above, you can also specify a `refreshage` parameter that indicates how old a tile can be before TileStrata should refresh it. This option should be used in conjunction with `maxage`. The purpose is best illustrated by an example:
+
+```js
+.use(disk.cache({
+    dir: './tiles/mylayer',
+    refreshage: 3600, // 1 hour
+    maxage: 3600*24*7 // 1 week
+}));
+```
+
+With this configuration, if the cache finds a tile that is two hours old, it will serve the tile from cache while telling TileStrata to build a new tile in the background for the next person (more info [here](https://github.com/naturalatlas/tilestrata#writing-caches)).
 
 ## Contributing
 
