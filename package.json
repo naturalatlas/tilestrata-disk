@@ -1,6 +1,6 @@
 {
   "name": "tilestrata-disk",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A TileStrata plugin for reading/writing tiles from the filesystem",
   "author": "Brian Reavis <brian@thirdroute.com>",
   "license": "Apache License, v2.0",
