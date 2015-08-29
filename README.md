@@ -41,6 +41,14 @@ server.layer('mylayer').route('tile.png')
     .use(disk.provider('/path/to/dir/{z}/{x}/{y}/file.png'));
 ```
 
+Some sample values of `maxage` are:
+
+```js
+maxage: null  // no age checking: permanent caching (default)
+maxage: 0     // disable cache completely (both reading and writing)
+maxage: 3600  // one hour
+```
+
 ### Advanced Behavior
 
 If using TileStrata [0.6.0](https://github.com/naturalatlas/tilestrata/releases/tag/v1.6.0) and above, you can also specify a `refreshage` parameter that indicates how old a tile can be before TileStrata should refresh it. This option should be used in conjunction with `maxage`. The purpose is best illustrated by an example:
@@ -53,7 +61,13 @@ If using TileStrata [0.6.0](https://github.com/naturalatlas/tilestrata/releases/
 }));
 ```
 
-With this configuration, if the cache finds a tile that is two hours old, it will serve the tile from cache while telling TileStrata to build a new tile in the background for the next person (more info [here](https://github.com/naturalatlas/tilestrata#writing-caches)).
+With this configuration, if the cache finds a tile that is two days old, it will serve the tile from cache while telling TileStrata to build a new tile in the background for the next person (more info [here](https://github.com/naturalatlas/tilestrata#writing-caches)). Some sample values of `refreshage` are:
+
+```js
+refreshage: null  // never refresh (default)
+refreshage: 0     // always refresh in background after hits
+refreshage: 1800  // half hour
+```
 
 ## Contributing
 
