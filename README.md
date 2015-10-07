@@ -36,6 +36,19 @@ server.layer('mylayer').route('tile.png')
         }
     }));
 
+// cache: custom directory layout
+server.layer('mylayer').route('tile.png')
+    .use(/* some provider */)
+    .use(disk.cache({path: './tiles/{layer}/{z}/{x}/{y}-{filename}'}));
+
+// cache: custom directory layout (via callback)
+server.layer('mylayer').route('tile.png')
+    .use(/* some provider */)
+    .use(disk.cache({path: function(tile) {
+	return './tiles/' + tile.layer + '/' + tile.z + '/' /* ... */
+    }}));
+```
+```js
 // provider: serve pre-existing / pre-sliced tiles off disk
 server.layer('mylayer').route('tile.png')
     .use(disk.provider('/path/to/dir/{z}/{x}/{y}/file.png'));

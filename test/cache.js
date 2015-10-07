@@ -17,7 +17,7 @@ describe('Cache Implementation "disk"', function() {
 			var dir = path.resolve(__dirname, './.tmp/fs' + String(Math.random()).substring(2)) + '/folder';
 			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
-				assert.isFalse(!!err);
+				if (err) throw err;
 				assert.isTrue(fs.existsSync(dir));
 				done();
 			});
@@ -30,9 +30,9 @@ describe('Cache Implementation "disk"', function() {
 			var dir = path.resolve(__dirname, './.tmp/fs' + String(Math.random()).substring(2)) + '/folder';
 			var cache = disk.cache({dir: dir});
 			cache.init(server, function(err) {
-				assert.isFalse(!!err);
+				if (err) throw err;
 				cache.set(server, req, new Buffer('contents', 'utf8'), {}, function(err) {
-					assert.isFalse(!!err);
+					if (err) throw err;
 					assert.equal(fs.readFileSync(dir + '/3/1/2/tile@2x.png', 'utf8'), 'contents');
 					done();
 				});
@@ -231,6 +231,56 @@ describe('Cache Implementation "disk"', function() {
 						'Content-Type': 'application/json; charset=UTF-8'
 					});
 					done();
+				});
+			});
+		});
+	});
+	it('should allow "path" template string', function(done) {
+		var server = new TileServer();
+		var dir = path.resolve(__dirname, './.tmp/fs' + String(Math.random()).substring(2));
+		var cache = disk.cache({path: dir + '/{layer}-{x}-{y}-{z}-{filename}'});
+		var req = TileRequest.parse('/mylayer/3/2/1/tile.txt');
+
+		var payload = new Buffer('hello', 'utf8');
+
+		cache.init(server, function(err) {
+			if (err) throw err;
+			cache.get(server, req, function(err, buffer, headers) {
+				if (err) throw err;
+				cache.set(server, req, payload, {}, function(err) {
+					if (err) throw err;
+					var content = fs.readFileSync(dir + '/mylayer-2-1-3-tile.txt', 'utf8');
+					assert.equal(content, 'hello');
+					cache.get(server, req, function(err, buffer, headers) {
+						if (err) throw err;
+						assert.equal(buffer.toString('utf8'), 'hello');
+						done();
+					});
+				});
+			});
+		});
+	});
+	it('should allow "path" callback', function(done) {		var server = new TileServer();
+		var dir = path.resolve(__dirname, './.tmp/fs' + String(Math.random()).substring(2));
+		var cache = disk.cache({path: function(req) {
+			return dir + '/' + [req.layer, req.x, req.y, req.z, req.filename].join('-');
+		}});
+		var req = TileRequest.parse('/mylayer/3/2/1/tile.txt');
+		var payload = new Buffer('hello', 'utf8');
+
+		cache.init(server, function(err) {
+			if (err) throw err;
+			cache.get(server, req, function(err, buffer, headers) {
+				if (err) throw err;
+				cache.set(server, req, payload, {}, function(err) {
+					if (err) throw err;
+					var content = fs.readFileSync(dir + '/mylayer-2-1-3-tile.txt', 'utf8');
+					assert.equal(content, 'hello');
+					cache.get(server, req, function(err, buffer, headers) {
+						if (err) throw err;
+						assert.equal(buffer.toString('utf8'), 'hello');
+						done();
+					});
 				});
 			});
 		});
