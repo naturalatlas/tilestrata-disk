@@ -45,7 +45,7 @@ server.layer('mylayer').route('tile.png')
 server.layer('mylayer').route('tile.png')
     .use(/* some provider */)
     .use(disk.cache({path: function(tile) {
-	return './tiles/' + tile.layer + '/' + tile.z + '/' /* ... */
+        return './tiles/' + tile.layer + '/' + tile.z + '/' /* ... */
     }}));
 ```
 ```js
