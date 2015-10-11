@@ -6,6 +6,10 @@ var path = require('path');
 var fs = require('fs');
 
 describe('Cache Implementation "disk"', function() {
+	it('should define name', function() {
+		var cache = disk.cache({dir: './'});
+		assert.equal(cache.name, 'disk');
+	});
 	it('should throw if "refreshage" given without "maxage"', function() {
 		assert.throws(function() {
 			disk.cache({dir: __dirname, refreshage: 1});

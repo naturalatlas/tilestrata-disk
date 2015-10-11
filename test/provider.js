@@ -6,6 +6,10 @@ var path = require('path');
 var fs = require('fs');
 
 describe('Provider Implementation "disk"', function() {
+	it('should define name', function() {
+		var cache = disk.provider('template');
+		assert.equal(cache.name, 'disk');
+	});
 	describe('serve', function() {
 		it('should serve file if exists', function(done) {
 			var server = new TileServer();
