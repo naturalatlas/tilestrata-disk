@@ -17,7 +17,7 @@ var disk = require('tilestrata-disk');
 // cache: cache tiles to disk
 server.layer('mylayer').route('tile.png')
     .use(/* some provider */)
-    .use(disk.cache({dir: './tiles/mylayer'}));
+    .use(disk.cache({dir: './tiles/mylayer', headers: { 'Content-Encoding': 'gzip' }}));
 
 // cache: cache with maxage
 server.layer('mylayer').route('tile.png')
@@ -52,6 +52,10 @@ server.layer('mylayer').route('tile.png')
 // provider: serve pre-existing / pre-sliced tiles off disk
 server.layer('mylayer').route('tile.png')
     .use(disk.provider('/path/to/dir/{z}/{x}/{y}/file.png'));
+
+// provider: serve pre-existing tiles with custom headers
+server.layer('mylayer').route('tile.png')
+    .use(disk.provider('/path/to/dir/{z}/{x}/{y}/file.png', {headers: {'Content-Encoding': 'gzip'}}));
 ```
 
 Some sample values of `maxage` are:

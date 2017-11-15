@@ -22,6 +22,17 @@ describe('Provider Implementation "disk"', function() {
 				done();
 			});
 		});
+		it('should serve file with custom headers', function(done) {
+			var server = new TileServer();
+			var provider = disk.provider(__dirname + '/fixtures/sample/{z}/{x}/{y}/tile.txt', {headers: {'Content-Encoding': 'gzip'}});
+			var req = TileRequest.parse('/basemap/3/2/1/tile.txt', {'x-tilestrata-skipcache':'1','x-random':'1'}, 'HEAD');
+			provider.serve(server, req, function(err, buffer, headers) {
+				if (err) throw err;
+				assert.equal(buffer.toString('utf8'), 'Hello World');
+				assert.deepEqual(headers, {'Content-Type': 'text/plain; charset=UTF-8', 'Content-Encoding': 'gzip'});
+				done();
+			});
+		});
 		it('should return 404 if it doesn\'t exist', function(done) {
 			var server = new TileServer();
 			var provider = disk.provider(__dirname + '/sample-doesnotexist/{z}/{x}/{y}/tile.txt');

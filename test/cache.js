@@ -238,6 +238,25 @@ describe('Cache Implementation "disk"', function() {
 				});
 			});
 		});
+		it('should retrieve file with custom headers', function(done) {
+			var server = new TileServer();
+			var req = TileRequest.parse('/layer/3/2/1/tile.txt');
+			var dir = __dirname + '/fixtures/sample';
+			var cache = disk.cache({dir: dir, headers: { 'Content-Encoding': 'gzip' }});
+			cache.init(server, function(err) {
+				if (err) throw err;
+				cache.get(server, req, function(err, buffer, headers) {
+					if (err) throw err;
+					assert.instanceOf(buffer, Buffer);
+					assert.equal(buffer.toString('utf8'), 'Hello World');
+					assert.deepEqual(headers, {
+						'Content-Type': 'text/plain; charset=UTF-8',
+					 	'Content-Encoding': 'gzip'
+					});
+					done();
+				});
+			});
+		});
 	});
 	it('should allow "path" template string', function(done) {
 		var server = new TileServer();
